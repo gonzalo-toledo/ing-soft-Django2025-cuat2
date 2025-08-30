@@ -47,6 +47,10 @@ INSTALLED_APPS = [
     'pasajeros',
     'vuelos',
     'reservas',
+    
+    #api
+    'rest_framework',
+    'api',
 ]
 
 MIDDLEWARE = [
@@ -163,3 +167,11 @@ sentry_sdk.init(
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     send_default_pii=True,
 )
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny'
+    ]
+}
