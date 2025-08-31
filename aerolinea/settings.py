@@ -162,7 +162,8 @@ EMAIL_PORT = '2525'
 import sentry_sdk
 
 sentry_sdk.init(
-    dsn="https://4833574afda07fb731abd2f148f120f8@o4509805686816768.ingest.us.sentry.io/4509805689176064",
+    # dsn="https://4833574afda07fb731abd2f148f120f8@o4509805686816768.ingest.us.sentry.io/4509805689176064",
+    
     # Add data like request headers and IP for users,
     # see https://docs.sentry.io/platforms/python/data-management/data-collected/ for more info
     send_default_pii=True,
