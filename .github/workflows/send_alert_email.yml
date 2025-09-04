@@ -40,7 +40,7 @@ jobs:
     name: Send email on success
     needs: tests #solo se ejecuta su tests termino correctamente
     if: success()
-    runs -on: ubuntu-latest # Runner gitHub
+    runs-on: ubuntu-latest # Runner gitHub
 
     steps:
       - name: Send email 
