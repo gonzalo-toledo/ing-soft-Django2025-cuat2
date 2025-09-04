@@ -1,4 +1,4 @@
-name: Send Email Alert# Nombre del Action
+name: Send Email Alert # Nombre del Action
 
 on: #Disparador
   pull_request: #Cuando se abre/actualiza un Pull Request(PR)
@@ -34,16 +34,14 @@ jobs:
       - name: Run tests (Pytest)
         run: python -m pytest -q # Corre tests en modo quiet falle el job
 
-
-
-  notify: #job numero 2
-    name: Send email on success
-    needs: tests #solo se ejecuta su tests termino correctamente
+  notify: # Job numero 2
+    name:   ss
+    needs: tests # Solo se ejecuta si tests termino
     if: success()
-    runs-on: ubuntu-latest # Runner gitHub
+    runs-on: ubuntu-latest # Runner github
 
-    steps:
-      - name: Send email 
+    steps: 
+      - name: Send Email
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.EMAIL_HOST }}
@@ -51,9 +49,9 @@ jobs:
           username: ${{ secrets.EMAIL_HOST_USER }}
           password: ${{ secrets.EMAIL_HOST_PASSWORD }}
           subject: "PR Listo para ser mergeado"
-          to: g.toledo@itecriocuarto.org.ar
+          to: 'g.toledo@itecriocuarto.org.ar'
           from: ${{ secrets.EMAIL_HOST }}
           secure: STARTTLS
-          body: |
-            El PR pasó sin problemas los tests.
-            Autor del PR ${{ github.event.pull_request.user.login }}
+          body: | 
+              El pull request paso sin problema
+              Autor del PR ${{ github.event.pull_request.user.login }}
