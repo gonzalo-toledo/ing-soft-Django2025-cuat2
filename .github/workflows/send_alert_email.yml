@@ -43,7 +43,7 @@ jobs:
     runs -on: ubuntu-latest # Runner gitHub
 
     steps:
-      - name: Send email on success
+      - name: Send email 
         uses: dawidd6/action-send-mail@v3
         with:
           server_address: ${{ secrets.EMAIL_HOST }}
@@ -51,8 +51,8 @@ jobs:
           username: ${{ secrets.EMAIL_HOST_USER }}
           password: ${{ secrets.EMAIL_HOST_PASSWORD }}
           subject: "PR Listo para ser mergeado"
-          to: ${{ secrets.EMAIL_TO }}
-          from: ${{ secrets.EMAIL_FROM }}
+          to: g.toledo@itecriocuarto.org.ar
+          from: ${{ secrets.EMAIL_HOST }}
           secure: STARTTLS
           body: |
             El PR pasó sin problemas los tests.
