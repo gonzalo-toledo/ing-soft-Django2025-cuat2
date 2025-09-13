@@ -5,7 +5,10 @@ from api.views import (
     RegistroCreateView,
     # PasajeroNuevoCreateView,
     # PasajeroRetrieveUpdateDestroyView,
-    PasajeroListCreateView
+    PasajeroListCreateView,
+    AeropuertoListCreateAPIView,
+    AeropuertoDetailAPIView,
+    VueloListCreateAPIView
 )
 
 urlpatterns = [
@@ -19,6 +22,12 @@ urlpatterns = [
     # USER + PASAJERO
     path('registro/', RegistroCreateView.as_view(), name='registro'),
     
+    #AEROPUERTOS
+    path('aeropuertos/', AeropuertoListCreateAPIView.as_view(), name='aeropuertos-list'),
+    path('aeropuertos/<int:pk>/', AeropuertoDetailAPIView.as_view(), name='aeropuerto-detail'),    
+    
+    #VUELOS
+    path('vuelos/', VueloListCreateAPIView.as_view(), name='vuelos-list'),
 
 
 #     # REGISTRO INICIAL (usuario + pasajero)

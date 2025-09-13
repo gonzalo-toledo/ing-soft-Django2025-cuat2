@@ -1,6 +1,7 @@
 from django.contrib.auth.models import User
 from pasajeros.models import Pasajero
 from home.models import Nacionalidad
+from vuelos.models import Vuelo, Aeropuerto
 from rest_framework import serializers
 
 
@@ -131,3 +132,50 @@ class RegistroSerializer(serializers.ModelSerializer):
             **validated_data
         )
         return pasajero
+
+
+#AEROPUERTO
+class AeropuertoSerializer(serializers.Serializer): #con serializer a diferencia de ModelSerializer con que un modelo tenga el mismo atributo y no siempre el 100% se puede serializar
+    id = serializers.IntegerField(read_only=True)
+    iata = serializers.CharField(max_length=3)
+    nombre = serializers.CharField(max_length=255)
+    ciudad = serializers.CharField(max_length=100)
+    provincia = serializers.CharField(max_length=100)
+    pais = serializers.CharField(max_length=100)
+    latitud = serializers.FloatField()
+    longitud = serializers.FloatField()
+    tipo = serializers.CharField(max_length=50)
+
+    def create(self, validated_data):
+        return Aeropuerto.objects.create(**validated_data)
+
+    def update(self, instance, validated_data):
+        instance.iata = validated_data.get('iata', instance.iata)
+        instance.nombre = validated_data.get('nombre', instance.nombre)
+        instance.ciudad = validated_data.get('ciudad', instance.ciudad)
+        instance.provincia = validated_data.get('provincia', instance.provincia)
+        instance.pais = validated_data.get('pais', instance.pais)
+        instance.latitud = validated_data.get('latitud', instance.latitud)
+        instance.longitud = validated_data.get('longitud', instance.longitud)
+        instance.tipo = validated_data.get('tipo', instance.tipo)
+        instance.save()
+        return instance
+
+class AeropuertoForVueloSerializer(serializers.Serializer):
+    ciudad = serializers.CharField(max_length=100)
+
+#VUELO
+class VueloSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    avion = serializers.CharField(source='avion.modelo', read_only=True)  # Mostrar el modelo del avión
+    origen = serializers.CharField(source='origen.ciudad', read_only=True)  # Mostrar la ciudad del aeropuerto de origen. Esta es una forma de hacerlo
+    destino = AeropuertoForVueloSerializer(read_only=True)  # Mostrar solo la ciudad del aeropuerto de destino. Esta es la otra forma de hacerlo con otro serializer
+    fecha_salida = serializers.DateTimeField()
+    fecha_llegada = serializers.DateTimeField()
+    duracion = serializers.DurationField(read_only=True)  # Duración del vuelo, solo lectura
+    estado = serializers.CharField()
+    precio_base = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_vuelos = serializers.SerializerMethodField()  # Campo calculado
+
+    def get_total_vuelos(self, obj):
+        return Vuelo.objects.count()
