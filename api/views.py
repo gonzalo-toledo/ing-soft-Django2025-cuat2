@@ -1,6 +1,10 @@
 from django.contrib.auth.models import User
 from pasajeros.models import Pasajero
+from vuelos.models import Vuelo, Aeropuerto
+
+from rest_framework.views import APIView
 from rest_framework import status
+
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
     ListAPIView,
@@ -10,7 +14,7 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from api.serializers import UserSerializer, PasajeroSerializer, RegistroSerializer
+from api.serializers import UserSerializer, PasajeroSerializer, RegistroSerializer, AeropuertoSerializer, VueloSerializer
 
 from pasajeros.models import Pasajero 
 
@@ -92,3 +96,80 @@ class RegistroCreateView(CreateAPIView):
     queryset = Pasajero.objects.all()
     serializer_class = RegistroSerializer
 
+
+
+# AEROPUERTOS (con APIView)
+class AeropuertoListCreateAPIView(APIView): #con APIViewtengo que definir get y post
+    """
+    GET /api/aeropuertos/ -> lista todos los aeropuertos
+    POST /api/aeropuertos/ -> crea un nuevo aeropuerto
+    """
+    def get(self, request):
+        qs = Aeropuerto.objects.all().order_by('id')
+        serializer = AeropuertoSerializer(qs, many=True)
+        return Response(serializer.data)
+    
+    def post(self, request):
+        serializer = AeropuertoSerializer(data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            return Response(
+                AeropuertoSerializer(instance).data, 
+                status=status.HTTP_201_CREATED
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class AeropuertoDetailAPIView(APIView):
+    """
+    GET /api/vuelos/<id>/ -> detalle de un vuelo
+    """
+    def get_object(self, pk):
+        return get_object_or_404(Aeropuerto, pk=pk)
+    
+    def get(self, request, pk):
+        instance = self.get_object(pk)
+        return Response(
+            AeropuertoSerializer(instance).data
+        )
+        
+    def put(self, request, pk):
+        instance = self.get_object(pk)
+        serializer = AeropuertoSerializer(instance, data=request.data)
+        if serializer.is_valid():
+            instance = serializer.save()
+            return Response(
+                AeropuertoSerializer(instance).data
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def patch(self, request, pk):
+        instance = self.get_object(pk)
+        serializer = AeropuertoSerializer(instance, data=request.data, partial=True)
+        if serializer.is_valid():
+            instance = serializer.save()
+            return Response(
+                AeropuertoSerializer(instance).data
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, pk):
+        instance = self.get_object(pk)
+        instance.delete()
+        return Response(
+            {"detail": "Aeropuerto eliminado correctamente."},
+            status=status.HTTP_204_NO_CONTENT
+        )
+        
+
+# VUELOS (con APIView)
+class VueloListCreateAPIView(APIView):
+    """
+    GET /api/vuelos/ -> lista todos los vuelos
+    POST /api/vuelos/ -> crea un nuevo vuelo
+    """
+    def get(self, request):
+        qs = Vuelo.objects.all().order_by('id')
+        serializer = VueloSerializer(qs, many=True)
+        return Response(serializer.data)
