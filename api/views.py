@@ -4,6 +4,7 @@ from vuelos.models import Vuelo, Aeropuerto
 
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticated, IsAdminUser #Se usa con permission_classes
 
 from django.shortcuts import get_object_or_404
 from rest_framework.generics import (
@@ -14,9 +15,16 @@ from rest_framework.generics import (
 )
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
-from api.serializers import UserSerializer, PasajeroSerializer, RegistroSerializer, AeropuertoSerializer, VueloSerializer
 
-from pasajeros.models import Pasajero 
+from api.mixins import AuthViewMixin, AuthAdminViewMixin #permite que le pasemos el permiso como una vista y no como un permission_class (herencia de clase)
+from api.permissions import TokenPermission
+from api.serializers import (
+    UserSerializer, 
+    PasajeroSerializer, 
+    RegistroSerializer, 
+    AeropuertoSerializer, 
+    VueloSerializer,
+)
 
 
 # USERS
@@ -37,6 +45,7 @@ class UserListCreateView(ListCreateAPIView):
         return -> [<UserSerializer>, ...]
     POST /api/users/ - crea un nuevo usuario
     '''
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -49,6 +58,7 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     PATCH /api/users/1/ -> actualiza parcialmente el usuario 1
     DELETE /api/users/1/ -> elimina el usuario 1   
     '''
+    permission_classes = [IsAdminUser]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     
@@ -68,7 +78,7 @@ class UserRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 #PASAJEROS
-class PasajeroListCreateView(ListCreateAPIView):
+class PasajeroListCreateView(ListCreateAPIView, AuthViewMixin):
     """
     GET /api/users/<user_pk>/pasajeros/ -> lista pasajeros del usuario
     POST /api/users/<user_pk>/pasajeros/ -> crea pasajero para el usuario
@@ -99,7 +109,7 @@ class RegistroCreateView(CreateAPIView):
 
 
 # AEROPUERTOS (con APIView)
-class AeropuertoListCreateAPIView(APIView): #con APIViewtengo que definir get y post
+class AeropuertoListCreateAPIView(APIView, AuthAdminViewMixin): #con APIViewtengo que definir get y post
     """
     GET /api/aeropuertos/ -> lista todos los aeropuertos
     POST /api/aeropuertos/ -> crea un nuevo aeropuerto
@@ -120,7 +130,7 @@ class AeropuertoListCreateAPIView(APIView): #con APIViewtengo que definir get y 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 
-class AeropuertoDetailAPIView(APIView):
+class AeropuertoDetailAPIView(APIView, AuthAdminViewMixin):
     """
     GET /api/vuelos/<id>/ -> detalle de un vuelo
     """
@@ -169,6 +179,7 @@ class VueloListCreateAPIView(APIView):
     GET /api/vuelos/ -> lista todos los vuelos
     POST /api/vuelos/ -> crea un nuevo vuelo
     """
+    permission_classes = [TokenPermission]
     def get(self, request):
         qs = Vuelo.objects.all().order_by('id')
         serializer = VueloSerializer(qs, many=True)
